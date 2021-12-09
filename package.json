@@ -1,0 +1,20 @@
+{
+    "name": "status-tracker",
+    "version": "1.0.0",
+    "description": "Collaborative app to track the status of users (busy, stuck, finished)",
+    "author": "Thomas Marrinan",
+    "repository": "https://github.com/tmarrinan/status-tracker",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "keywords": [
+        "Electron",
+        "status tracker",
+        "education tool"
+    ],
+    "license": "GPL-2",
+    "devDependencies": {
+        "electron": "^16.0.4"
+    }
+}
