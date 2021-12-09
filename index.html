@@ -5,8 +5,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Status Tracker</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/vue@3.2.24/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script type="application/javascript" src="js/status.js"></script>
 </head>
-<body>
-    <p>Hello World!</p>
+<body onload="init()">
+    <div id="app">
+        <div id="status-icon-container">
+            <img v-if="mode === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
+            <img v-else class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" />
+            <img v-if="mode === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />
+            <img v-else class="icon" src="images/icon_busy_gray.png" alt="busy (unselected)" width="96" height="96" />
+            <img v-if="mode === 'stuck'" class="icon selected-icon" src="images/icon_stuck.png" alt="stuck" width="96" height="96" />
+            <img v-else class="icon" src="images/icon_stuck_gray.png" alt="stuck (unselected)" width="96" height="96" />
+        </div>
+    </div>
 </body>
 </html>

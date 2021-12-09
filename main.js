@@ -8,10 +8,14 @@ const {app, BrowserWindow} = require('electron');
 // Create the application window
 function createWindow() {
     let options = {
-        width: 350,
-        height: 500
+        width: 250,
+        height: 500,
+        show: false
     };
     let main_window = new BrowserWindow(options);
+    main_window.once('ready-to-show', () => {
+        main_window.show();
+    });
     main_window.loadFile(path.join(__dirname, 'index.html'));
 }
 
