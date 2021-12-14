@@ -1,4 +1,9 @@
 function init() {
+    let query_str = decodeURIComponent(window.location.search);
+    let params = new URLSearchParams(query_str);
+    let ws_host = params.get("ws");
+    let is_secure = params.get("secure");
+    
     const app = {
         data() {
             return {

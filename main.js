@@ -3,14 +3,41 @@ const path = require('path');
 
 // Third-party Node.js packages
 const {app, BrowserWindow} = require('electron');
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 
 
-// debug mode - open developer console
-const debug_mode = (process.argv.indexOf('--debug-mode') !== -1);
+// Command line options
+const cmd_option_defs = [
+    {name: 'help', alias: 'h', type: Boolean},
+    {name: 'config-file', alias: 'f', type: String},
+    {name: 'debug-mode', alias: 'd', type: Boolean}
+];
+let cmd_options = {};
+try {
+    cmd_options = commandLineArgs(cmd_option_defs);
+}
+catch (err) {
+    console.log('Warning: unknown option entered');
+}
+if (!cmd_options.hasOwnProperty('help')) cmd_options['help'] = false;
+if (!cmd_options.hasOwnProperty('config-file')) cmd_options['config-file'] = path.join('config', 'sample-cfg.json');
+if (!cmd_options.hasOwnProperty('debug-mode')) cmd_options['debug-mode'] = false;
+
+if (cmd_options['help'] === true) {
+    printHelp();
+    process.exit(0);
+}
+
+
+// TODO: read config file
+//  * get WebSocket host and whether or not encrypted (ws vs. wss)
+//     * use in `main_window.loadFile` query
+
 
 // Create the application window
 function createWindow() {
-    let win_width = debug_mode ? 800 : 250;
+    let win_width = cmd_options['debug-mode'] ? 800 : 250;
     let options = {
         width: win_width,
         height: 500,
@@ -19,11 +46,11 @@ function createWindow() {
     let main_window = new BrowserWindow(options);
     main_window.once('ready-to-show', () => {
         main_window.show();
-        if (debug_mode) {
+        if (cmd_options['debug-mode']) {
             main_window.webContents.openDevTools();
         }
     });
-    main_window.loadFile(path.join(__dirname, 'index.html'));
+    main_window.loadFile(path.join(__dirname, 'index.html'), {query: {ws: 'localhost:8000', secure: false}});
 }
 
 
@@ -48,3 +75,39 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+
+// Print help (show command line options)
+function printHelp() {
+    const sections = [
+        {
+            header: 'Status Tracker',
+            content: 'Collaborative app to track the status of users (done, busy, stuck)'
+        },
+        {
+            header: 'Options',
+            optionList: [
+                {
+                    name: 'help',
+                    description: 'Print this usage guide.',
+                    alias: 'h',
+                    type: Boolean
+                },
+                {
+                    name: 'config-file',
+                    description: 'The configuration file for your group.',
+                    alias: 'f',
+                    typeLabel: '{underline file}'
+                },
+                {
+                    name: 'debug-mode',
+                    description: 'Run in debug mode (i.e. show Developer Console).',
+                    alias: 'd',
+                    type: Boolean
+                }
+            ]
+        }
+    ];
+    const usage = commandLineUsage(sections);
+    console.log(usage);
+}
