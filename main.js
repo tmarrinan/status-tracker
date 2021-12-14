@@ -5,19 +5,23 @@ const path = require('path');
 const {app, BrowserWindow} = require('electron');
 
 
+// debug mode - open developer console
+const debug_mode = (process.argv.indexOf('--debug-mode') !== -1);
+
 // Create the application window
 function createWindow() {
+    let win_width = debug_mode ? 800 : 250;
     let options = {
-        //width: 250,
-        width: 800, // dev
+        width: win_width,
         height: 500,
         show: false
     };
     let main_window = new BrowserWindow(options);
     main_window.once('ready-to-show', () => {
         main_window.show();
-        // dev
-        main_window.webContents.openDevTools()
+        if (debug_mode) {
+            main_window.webContents.openDevTools();
+        }
     });
     main_window.loadFile(path.join(__dirname, 'index.html'));
 }
