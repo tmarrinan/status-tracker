@@ -18,9 +18,10 @@ html {
 
 .icon {
     margin: 5px;
+    border: solid 3px rgba(255, 255, 255, 0.0);
 }
 
 .selected-icon {
-    border: solid 3px #FFFFFF;
+    border-color: rgba(255, 255, 255, 1.0);
     border-radius: 50%;
 }
