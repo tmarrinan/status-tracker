@@ -11,6 +11,7 @@ const commandLineUsage = require('command-line-usage');
 const cmd_option_defs = [
     {name: 'help', alias: 'h', type: Boolean},
     {name: 'config-file', alias: 'f', type: String},
+    {name: 'client-type', alias: 't', type: String},
     {name: 'debug-mode', alias: 'd', type: Boolean}
 ];
 let cmd_options = {};
@@ -22,6 +23,7 @@ catch (err) {
 }
 if (!cmd_options.hasOwnProperty('help')) cmd_options['help'] = false;
 if (!cmd_options.hasOwnProperty('config-file')) cmd_options['config-file'] = path.join('config', 'sample-cfg.json');
+if (!cmd_options.hasOwnProperty('client-type')) cmd_options['client-type'] = 'normal';
 if (!cmd_options.hasOwnProperty('debug-mode')) cmd_options['debug-mode'] = false;
 
 if (cmd_options['help'] === true) {
@@ -50,7 +52,7 @@ function createWindow() {
             main_window.webContents.openDevTools();
         }
     });
-    main_window.loadFile(path.join(__dirname, 'index.html'), {query: {ws: 'localhost:8000', secure: false}});
+    main_window.loadFile(path.join(__dirname, 'index.html'), {query: {ws: 'localhost:8000', secure: false, type: cmd_options['client-type']}});
 }
 
 
@@ -98,6 +100,12 @@ function printHelp() {
                     description: 'The configuration file for your group.',
                     alias: 'f',
                     typeLabel: '{underline file}'
+                },
+                {
+                    name: 'client-type',
+                    description: 'The type of client to launch (main or normal).',
+                    alias: 't',
+                    typeLabel: '{underline type}'
                 },
                 {
                     name: 'debug-mode',

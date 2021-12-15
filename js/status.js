@@ -1,8 +1,18 @@
+let wsio;
+let client_type;
+
 function init() {
     let query_str = decodeURIComponent(window.location.search);
     let params = new URLSearchParams(query_str);
-    let ws_host = params.get("ws");
-    let is_secure = params.get("secure");
+    let ws_host = params.get('ws');
+    let is_secure = (params.get('secure') === 'true');
+    let protocol = is_secure ? 'wss://' : 'ws://';
+    client_type = params.get('type') || 'normal';
+    
+    console.log(client_type);
+    
+    wsio = new WebSocketIO(protocol + ws_host);
+    wsio.open(wsOpen);
     
     const app = {
         data() {
@@ -26,4 +36,25 @@ function init() {
     };
     
     Vue.createApp(app).mount('#app');
+}
+
+function wsOpen() {
+    console.log('Now connected to WebSocketIO server!');
+    wsio.on('initialStatus', wsInitialStatus);
+    wsio.on('newClient', wsNewClient);
+    wsio.on('clientStatusChange', wsClientStatusChange);
+    
+    wsio.emit('setClientType', {client_type: client_type});
+}
+
+function wsInitialStatus(data) {
+    console.log(data);
+}
+
+function wsNewClient(data) {
+    console.log(data);
+}
+
+function wsClientStatusChange(data) {
+    console.log(data);
 }

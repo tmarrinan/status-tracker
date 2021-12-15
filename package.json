@@ -6,7 +6,8 @@
     "repository": "https://github.com/tmarrinan/status-tracker",
     "main": "main.js",
     "scripts": {
-        "start": "electron ."
+        "start": "electron .",
+        "serve": "node server.js"
     },
     "keywords": [
         "Electron",
@@ -15,7 +16,8 @@
     ],
     "license": "GPL-2",
     "devDependencies": {
-        "electron": "^16.0.4"
+        "electron": "^16.0.4",
+        "websocketio": "^1.2.0"
     },
     "dependencies": {
         "command-line-args": "^5.2.0",
