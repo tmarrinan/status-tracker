@@ -37,10 +37,10 @@ if (cmd_options['help'] === true) {
 
 // Create the application window
 function createWindow() {
-    let win_width = cmd_options['debug-mode'] ? 800 : 250;
+    let win_width = cmd_options['debug-mode'] ? 1250 : 800;
     let options = {
         width: win_width,
-        height: 500,
+        height: 600,
         show: false
     };
     let main_window = new BrowserWindow(options);
@@ -50,7 +50,7 @@ function createWindow() {
             main_window.webContents.openDevTools();
         }
     });
-    main_window.loadFile(path.join(__dirname, 'index.html'), {query: {ws: 'localhost:8000', secure: false, room: 'test123'}});
+    main_window.loadFile(path.join(__dirname, 'command-center.html'), {query: {ws: 'localhost:8000', secure: false, room: 'test123'}});
 }
 
 

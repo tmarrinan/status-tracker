@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Status Tracker - Command Center</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/vue@3.2.24/dist/vue.global.prod.js"></script>
+    <script type="application/javascript" src="js/websocketio.js"></script>
+    <script type="application/javascript" src="js/status-watch.js"></script>
+</head>
+<body onload="init()">
+    <div id="app">
+        <div id="status-icon-container">
+            <img v-if="mode === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
+            <img v-else id="status_done" class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" @click="changeStatus" />
+            <img v-if="mode === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />
+            <img v-else id="status_busy" class="icon" src="images/icon_busy_gray.png" alt="busy (unselected)" width="96" height="96" @click="changeStatus" />
+            <img v-if="mode === 'stuck'" class="icon selected-icon" src="images/icon_stuck.png" alt="stuck" width="96" height="96" />
+            <img v-else id="status_stuck" class="icon" src="images/icon_stuck_gray.png" alt="stuck (unselected)" width="96" height="96" @click="changeStatus" />
+        </div>
+    </div>
+</body>
+</html>

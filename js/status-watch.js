@@ -29,7 +29,6 @@ function init() {
                 else if (event.target.id === 'status_stuck') {
                     this.mode = 'stuck';
                 }
-                wsio.emit('statusChange', {status: this.mode});
             }
         }
     };
@@ -39,21 +38,21 @@ function init() {
 
 function wsOpen() {
     console.log('Now connected to WebSocketIO server!');
-    //wsio.on('initialStatus', wsInitialStatus);
-    //wsio.on('newClient', wsNewClient);
-    //wsio.on('clientStatusChange', wsClientStatusChange);
+    wsio.on('initialStatus', wsInitialStatus);
+    wsio.on('newClient', wsNewClient);
+    wsio.on('clientStatusChange', wsClientStatusChange);
     
-    wsio.emit('joinRoom', {room: room, client_type: 'normal'});
+    wsio.emit('joinRoom', {room: room, client_type: 'command-center'});
 }
 
-//function wsInitialStatus(data) {
-//    console.log(data);
-//}
-//
-//function wsNewClient(data) {
-//    console.log(data);
-//}
-//
-//function wsClientStatusChange(data) {
-//    console.log(data);
-//}
+function wsInitialStatus(data) {
+    console.log(data);
+}
+
+function wsNewClient(data) {
+    console.log(data);
+}
+
+function wsClientStatusChange(data) {
+    console.log(data);
+}
