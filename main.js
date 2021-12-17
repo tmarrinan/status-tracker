@@ -1,5 +1,7 @@
 // Built-in Node.js packages
+const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 // Third-party Node.js packages
 const {app, BrowserWindow} = require('electron');
@@ -30,9 +32,16 @@ if (cmd_options['help'] === true) {
 }
 
 
-// TODO: read config file
-//  * get WebSocket host and whether or not encrypted (ws vs. wss)
-//     * use in `main_window.loadFile` query
+// Check if configuration file already exists
+const status_tracker_data_directory = path.join(os.homedir(), '.status-tracker');
+if (!fs.existsSync(status_tracker_data_directory)) {
+    fs.mkdirSync(status_tracker_data_directory);
+}
+const config_file_path = path.join(status_tracker_data_directory, 'status-cfg.json');
+let config = null;
+if (fs.existsSync(config_file_path)) {
+    config = fs.readFileSync(config_file_path, 'utf8');
+}
 
 
 // Create the application window
@@ -50,7 +59,12 @@ function createWindow() {
             main_window.webContents.openDevTools();
         }
     });
-    main_window.loadFile(path.join(__dirname, 'index.html'), {query: {ws: 'localhost:8000', secure: false, room: 'test123'}});
+
+    let query = {};
+    if (config !== null) {
+        query.query = config;
+    }
+    main_window.loadFile(path.join(__dirname, 'index.html'), query);
 }
 
 
