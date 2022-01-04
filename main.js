@@ -53,6 +53,7 @@ function createWindow() {
         width: win_width,
         height: 500,
         show: false,
+        alwaysOnTop: true,
         webPreferences: {
             nodeIntegration: true,   // needed for IPC
             contextIsolation: false  // needed for IPC
@@ -61,6 +62,7 @@ function createWindow() {
     main_window = new BrowserWindow(options);
     main_window.once('ready-to-show', () => {
         main_window.show();
+        main_window.setResizable(false);
         if (cmd_options['debug-mode']) {
             main_window.webContents.openDevTools();
         }
@@ -102,11 +104,15 @@ app.on('window-all-closed', () => {
 ipcMain.on('change-mode', (event, arg) => {
     if (arg.mode === 'config') {
         let win_width = cmd_options['debug-mode'] ? 1000 : 450;
+        main_window.setResizable(true);
         main_window.setSize(win_width, 500);
+        main_window.setResizable(false);
     }
     else if (arg.mode === 'status-tracker') {
         let win_width = cmd_options['debug-mode'] ? 800 : 250;
+        main_window.setResizable(true);
         main_window.setSize(win_width, 500);
+        main_window.setResizable(false);
         
         fs.writeFile(config_file_path, JSON.stringify(arg.options, null, 4), 'utf8', (err) => {
             if (err) {
