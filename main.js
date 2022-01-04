@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 
 // Third-party Node.js packages
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
@@ -40,19 +40,25 @@ if (!fs.existsSync(status_tracker_data_directory)) {
 const config_file_path = path.join(status_tracker_data_directory, 'status-cfg.json');
 let config = null;
 if (fs.existsSync(config_file_path)) {
-    config = fs.readFileSync(config_file_path, 'utf8');
+    config = JSON.parse(fs.readFileSync(config_file_path, 'utf8'));
 }
 
 
 // Create the application window
+let main_window = null;
+
 function createWindow() {
     let win_width = cmd_options['debug-mode'] ? 800 : 250;
     let options = {
         width: win_width,
         height: 500,
-        show: false
+        show: false,
+        webPreferences: {
+            nodeIntegration: true,   // needed for IPC
+            contextIsolation: false  // needed for IPC
+        }
     };
-    let main_window = new BrowserWindow(options);
+    main_window = new BrowserWindow(options);
     main_window.once('ready-to-show', () => {
         main_window.show();
         if (cmd_options['debug-mode']) {
@@ -87,6 +93,26 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
+    }
+});
+
+
+// Listen for notification from app window when toggling between config panel
+// and main status-tracker view: resize window accordingly
+ipcMain.on('change-mode', (event, arg) => {
+    if (arg.mode === 'config') {
+        let win_width = cmd_options['debug-mode'] ? 1000 : 450;
+        main_window.setSize(win_width, 500);
+    }
+    else if (arg.mode === 'status-tracker') {
+        let win_width = cmd_options['debug-mode'] ? 800 : 250;
+        main_window.setSize(win_width, 500);
+        
+        fs.writeFile(config_file_path, JSON.stringify(arg.options, null, 4), 'utf8', (err) => {
+            if (err) {
+                console.log('Error: could not write config file');
+            }
+        });
     }
 });
 

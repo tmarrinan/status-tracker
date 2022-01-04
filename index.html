@@ -12,6 +12,13 @@
 <body onload="init()">
     <div id="app">
         <div v-if="mode === 'config'">
+            <label>Name: </label><input id="user-name" type="text" v-model="user" /><br/>
+            <hr/>
+            <label>Server: </label><input id="server" type="text" v-model="ws_host" /><br/>
+            <label>Secure: </label><input id="is-secure" type="checkbox" v-model="is_secure" /><br/>
+            <hr/>
+            <label>Room: </label><input id="room-id" type="text" v-model="room" /><br/>
+            <hr/>
             <button type="button" @click="updateConfig">Go</button>
         </div>
         <div v-else id="status-icon-container">
