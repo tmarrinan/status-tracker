@@ -8,12 +8,56 @@ html {
     background-color: #FFFFFF;
 }
 
+label {
+    font-size: 1rem;
+    color: #4A4A4A;
+    margin-left: 0.25rem;
+}
+
+input {
+    margin-bottom: 0.5rem;
+}
+
+button {
+    font-size: 1rem;
+    padding: 0.75rem;
+    min-width: 4rem;
+    border: none;
+    background-color: #3B79DB;
+    color: #FFFFFF;
+}
+
+hr {
+    margin: 0.25rem 0 0.75rem 0;
+    border: solid 1px #4A4A4A;
+}
+
+#config-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #EAEAEA;
+}
+
+#config-go {
+    text-align: center;
+    width: 100%;
+}
+
 #status-icon-container {
     width: 128px;
     text-align: center;
     padding-top: 5px;
     border-radius: 24px;
     background-color: #5F5F5F;
+}
+
+.config-label {
+    display: inline-block;
+    width: 6.5rem;
+}
+
+.config-input {
+    width: calc(100% - 7.5rem);
 }
 
 .icon {

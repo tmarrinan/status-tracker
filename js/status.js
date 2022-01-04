@@ -11,6 +11,7 @@ function init() {
     let is_secure = params.get('secure');
     let user = params.get('user');
     let room = params.get('room');
+    let computer_id = params.get('computer_id');
     
     // Create Vue.js model
     const app = {
@@ -20,6 +21,7 @@ function init() {
                 ws_host: '',
                 is_secure: true,
                 room: '',
+                computer_id: '',
                 mode: 'config',
                 status: 'done'
             }
@@ -31,14 +33,35 @@ function init() {
         },
         methods: {
             updateConfig(event) {
-                initStatusTracker(this.user, this.ws_url, this.room);
-                let options = {
-                    user: this.user,
-                    ws: this.ws_host,
-                    secure: this.is_secure,
-                    room: this.room
-                };
-                ipcRenderer.send('change-mode', {mode: component.mode, options: options});
+                let valid_inputs = true;
+                let valid_hostname_pattern = /^(([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])(\:([0-9]+))?$/;
+                if (!valid_hostname_pattern.test(this.ws_host)) {
+                    console.log('"' + this.ws_host + '" is not a valid hostname');
+                    valid_inputs = false;
+                }
+                if (this.user === '') {
+                    console.log('no user name entered');
+                    valid_inputs = false;
+                }
+                if (this.room === '') {
+                    console.log('no room name entered');
+                    valid_inputs = false;
+                }
+                if (this.computer_id === '') {
+                    console.log('no computer id entered');
+                    valid_inputs = false;
+                }
+                if (valid_inputs) {
+                    initStatusTracker(this.user, this.ws_url, this.room, this.computer_id);
+                    let options = {
+                        user: this.user,
+                        ws: this.ws_host,
+                        secure: this.is_secure,
+                        room: this.room,
+                        computer_id: this.computer_id
+                    };
+                    ipcRenderer.send('change-mode', {mode: component.mode, options: options});
+                }
             },
             changeStatus(event) {
                 if (event.target.id === 'status_done') {
@@ -58,7 +81,7 @@ function init() {
     component = Vue.createApp(app).mount('#app');
     
     // Init app in config panel on first launch
-    if (ws_host === null || is_secure === null || room === null) {
+    if (ws_host === null || is_secure === null || room === null || computer_id === null) {
         initConfigPanel();
     }
     // Init app on status tracker panel if already configured
@@ -66,7 +89,7 @@ function init() {
         component.ws_host = ws_host;
         component.is_secure = (is_secure === 'true');
         
-        initStatusTracker(user, component.ws_url, room);
+        initStatusTracker(user, component.ws_url, room, computer_id);
     }
 }
 
@@ -75,14 +98,16 @@ function initConfigPanel() {
     ipcRenderer.send('change-mode', {mode: component.mode});
 }
 
-function initStatusTracker(user, ws_url, room) {
+function initStatusTracker(user, ws_url, room, computer_id) {
     console.log('init status tracker: ' + ws_url + '(' + user + ')');
     
     component.user = user;
     component.room = room;
+    component.computer_id = computer_id;
     component.mode = 'status-tracker';
     wsio = new WebSocketIO(ws_url);
     wsio.open(wsOpen);
+    wsio.on('close', wsClose);
 }
 
 function connect() {
@@ -92,21 +117,16 @@ function connect() {
 
 function wsOpen() {
     console.log('Now connected to WebSocketIO server!');
-    //wsio.on('initialStatus', wsInitialStatus);
-    //wsio.on('newClient', wsNewClient);
-    //wsio.on('clientStatusChange', wsClientStatusChange);
-    
+
     wsio.emit('joinRoom', {room: component.room, client_type: 'normal'});
 }
 
-//function wsInitialStatus(data) {
-//    console.log(data);
-//}
-//
-//function wsNewClient(data) {
-//    console.log(data);
-//}
-//
-//function wsClientStatusChange(data) {
-//    console.log(data);
-//}
+function wsClose() {
+    console.log('WebSocket connection closed');
+    
+    // TODO: some sort of 'connection' indicator
+    //         - yellow on `initStatusTracker`
+    //         - green on `wsOpen`
+    //         - red on `wsClose`
+}
+
