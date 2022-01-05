@@ -24,7 +24,8 @@ function init() {
                 computer_id: '',
                 mode: 'config',
                 status: 'done',
-                error_msg: ''
+                error_msg: '',
+                connection_status: 'disconnected'
             }
         },
         computed: {
@@ -112,6 +113,8 @@ function initStatusTracker(user, ws_url, room, computer_id) {
     component.room = room;
     component.computer_id = computer_id;
     component.mode = 'status-tracker';
+    component.connection_status = 'connecting';
+    
     wsio = new WebSocketIO(ws_url);
     wsio.open(wsOpen, wsError);
     wsio.on('close', wsClose);
@@ -124,20 +127,21 @@ function connect() {
 
 function wsOpen() {
     console.log('Now connected to WebSocketIO server!');
+    
+    component.connection_status = 'connected';
 
     wsio.emit('joinRoom', {room: component.room, client_type: 'normal'});
 }
 
 function wsError(evt) {
     console.log('WebSocketIO Error', evt);
+    
+    component.connection_status = 'disconnected';
 }
 
 function wsClose() {
     console.log('WebSocket connection closed');
     
-    // TODO: some sort of 'connection' indicator
-    //         - yellow on `initStatusTracker`
-    //         - green on `wsOpen`
-    //         - red on `wsClose`
+    component.connection_status = 'disconnected';
 }
 

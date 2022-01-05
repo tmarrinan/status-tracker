@@ -46,12 +46,12 @@ if (fs.existsSync(config_file_path)) {
 
 // Create the application window
 let main_window = null;
+let win_size = {width: cmd_options['debug-mode'] ? 770 : 220, height: 450};
 
 function createWindow() {
-    let win_width = cmd_options['debug-mode'] ? 800 : 250;
     let options = {
-        width: win_width,
-        height: 500,
+        width: win_size.width,
+        height: win_size.height,
         show: false,
         alwaysOnTop: true,
         webPreferences: {
@@ -60,6 +60,13 @@ function createWindow() {
         }
     };
     main_window = new BrowserWindow(options);
+    
+    main_window.on('moved', (event) => {
+        main_window.setResizable(true);
+        main_window.setSize(win_size.width, win_size.height);
+        main_window.setResizable(false);
+    });
+    
     main_window.once('ready-to-show', () => {
         main_window.show();
         main_window.setResizable(false);
@@ -103,15 +110,17 @@ app.on('window-all-closed', () => {
 // and main status-tracker view: resize window accordingly
 ipcMain.on('change-mode', (event, arg) => {
     if (arg.mode === 'config') {
-        let win_width = cmd_options['debug-mode'] ? 1000 : 450;
+        win_size.width = cmd_options['debug-mode'] ? 1000 : 450;
+        win_size.height = 500;
         main_window.setResizable(true);
-        main_window.setSize(win_width, 500);
+        main_window.setSize(win_size.width, win_size.height);
         main_window.setResizable(false);
     }
     else if (arg.mode === 'status-tracker') {
-        let win_width = cmd_options['debug-mode'] ? 800 : 250;
+        win_size.width = cmd_options['debug-mode'] ? 770 : 220;
+        win_size.height = 450;
         main_window.setResizable(true);
-        main_window.setSize(win_width, 500);
+        main_window.setSize(win_size.width, win_size.height);
         main_window.setResizable(false);
         
         fs.writeFile(config_file_path, JSON.stringify(arg.options, null, 4), 'utf8', (err) => {

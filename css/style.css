@@ -54,6 +54,7 @@ hr {
 #status-icon-container {
     width: 128px;
     text-align: center;
+    margin-left: 2rem;
     padding-top: 5px;
     border-radius: 24px;
     background-color: #5F5F5F;
@@ -64,6 +65,21 @@ hr {
     top: 0;
     right: 5px;
     cursor: pointer;
+}
+
+#connection-container {
+    display: flex;
+    height: 1.25rem;
+    justify-content: left;
+    align-items: center;
+    margin: 1rem 0 0 1rem;
+}
+
+#connstat-text {
+    font-size: 1rem;
+    text-transform: capitalize;
+    margin-left: 1rem;
+    color: #4A4A4A;
 }
 
 .config-label {
@@ -88,4 +104,25 @@ hr {
 .selected-icon {
     border-color: rgba(255, 255, 255, 1.0);
     border-radius: 50%;
+}
+
+.connection-indicator {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    border: solid 1px #4A4A4A;
+    border-radius: 50%;
+}
+
+.connstat-disconnected {
+    background-color: #C80000;
+}
+
+.connstat-connecting {
+    background-color: #EDED34;
+}
+
+.connstat-connected {
+    background-color: #0EAD1E;
 }
