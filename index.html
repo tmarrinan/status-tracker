@@ -6,7 +6,7 @@
 	<title>Status Tracker</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/vue@3.2.24/dist/vue.global.prod.js"></script>
-    <script type="application/javascript" src="js/websocketio.js"></script>
+    <script type="application/javascript" src="js/websocketio.min.js"></script>
     <script type="application/javascript" src="js/status.js"></script>
 </head>
 <body onload="init()">
@@ -24,10 +24,12 @@
                 <div id="config-go">
                     <button type="button" @click="updateConfig">Go</button>
                 </div>
+                <div id="error-container" v-if="error_msg !== ''" v-html="error_msg"></div>
             </div>
         </div>
         <div v-else id="status-icon-container">
             <!-- TODO: add config settings button and connection indicator -->
+            <img id="settings-button" src="images/icon_settings.png" alt="settings" width="28" height="24" @click="openConfigPanel" />
             <img v-if="status === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
             <img v-else id="status_done" class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" @click="changeStatus" />
             <img v-if="status === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />

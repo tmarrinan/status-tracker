@@ -23,7 +23,8 @@ function init() {
                 room: '',
                 computer_id: '',
                 mode: 'config',
-                status: 'done'
+                status: 'done',
+                error_msg: ''
             }
         },
         computed: {
@@ -34,22 +35,23 @@ function init() {
         methods: {
             updateConfig(event) {
                 let valid_inputs = true;
+                this.error_msg = '';
                 let valid_hostname_pattern = /^(([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])(\:([0-9]+))?$/;
-                if (!valid_hostname_pattern.test(this.ws_host)) {
-                    console.log('"' + this.ws_host + '" is not a valid hostname');
-                    valid_inputs = false;
-                }
                 if (this.user === '') {
-                    console.log('no user name entered');
                     valid_inputs = false;
+                    this.error_msg += '<p class="err">User name is missing</p>'
+                }
+                if (!valid_hostname_pattern.test(this.ws_host)) {
+                    valid_inputs = false;
+                    this.error_msg += '<p class="err">Invalid server URL</p>'
                 }
                 if (this.room === '') {
-                    console.log('no room name entered');
                     valid_inputs = false;
+                    this.error_msg += '<p class="err">Room name is missing</p>'
                 }
                 if (this.computer_id === '') {
-                    console.log('no computer id entered');
                     valid_inputs = false;
+                    this.error_msg += '<p class="err">Computer ID is missing</p>'
                 }
                 if (valid_inputs) {
                     initStatusTracker(this.user, this.ws_url, this.room, this.computer_id);
@@ -62,6 +64,11 @@ function init() {
                     };
                     ipcRenderer.send('change-mode', {mode: component.mode, options: options});
                 }
+            },
+            openConfigPanel(event) {
+                wsio.close();
+                component.mode = 'config';
+                initConfigPanel();
             },
             changeStatus(event) {
                 if (event.target.id === 'status_done') {
@@ -106,7 +113,7 @@ function initStatusTracker(user, ws_url, room, computer_id) {
     component.computer_id = computer_id;
     component.mode = 'status-tracker';
     wsio = new WebSocketIO(ws_url);
-    wsio.open(wsOpen);
+    wsio.open(wsOpen, wsError);
     wsio.on('close', wsClose);
 }
 
@@ -119,6 +126,10 @@ function wsOpen() {
     console.log('Now connected to WebSocketIO server!');
 
     wsio.emit('joinRoom', {room: component.room, client_type: 'normal'});
+}
+
+function wsError(evt) {
+    console.log('WebSocketIO Error', evt);
 }
 
 function wsClose() {

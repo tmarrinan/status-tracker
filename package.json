@@ -18,7 +18,7 @@
     "license": "GPL-2",
     "devDependencies": {
         "electron": "^16.0.4",
-        "websocketio": "^1.2.0"
+        "websocketio": "^1.2.1"
     },
     "dependencies": {
         "command-line-args": "^5.2.0",
