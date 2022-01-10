@@ -1,8 +1,10 @@
 // Built-in Node.js packages
+const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 // Third-party Node.js packages
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
@@ -10,7 +12,6 @@ const commandLineUsage = require('command-line-usage');
 // Command line options
 const cmd_option_defs = [
     {name: 'help', alias: 'h', type: Boolean},
-    {name: 'config-file', alias: 'f', type: String},
     {name: 'debug-mode', alias: 'd', type: Boolean}
 ];
 let cmd_options = {};
@@ -21,7 +22,6 @@ catch (err) {
     console.log('Warning: unknown option entered');
 }
 if (!cmd_options.hasOwnProperty('help')) cmd_options['help'] = false;
-if (!cmd_options.hasOwnProperty('config-file')) cmd_options['config-file'] = path.join('config', 'sample-cfg.json');
 if (!cmd_options.hasOwnProperty('debug-mode')) cmd_options['debug-mode'] = false;
 
 if (cmd_options['help'] === true) {
@@ -30,27 +30,50 @@ if (cmd_options['help'] === true) {
 }
 
 
-// TODO: read config file
-//  * get WebSocket host and whether or not encrypted (ws vs. wss)
-//     * use in `main_window.loadFile` query
+// Check if configuration file already exists
+const status_tracker_data_directory = path.join(os.homedir(), '.status-tracker');
+if (!fs.existsSync(status_tracker_data_directory)) {
+    fs.mkdirSync(status_tracker_data_directory);
+}
+const config_file_path = path.join(status_tracker_data_directory, 'commandcenter-cfg.json');
+let config = null;
+if (fs.existsSync(config_file_path)) {
+    config = JSON.parse(fs.readFileSync(config_file_path, 'utf8'));
+}
 
 
 // Create the application window
+let main_window = null;
+let win_size = {width: cmd_options['debug-mode'] ? 1280 : 800, height: 650};
+
 function createWindow() {
-    let win_width = cmd_options['debug-mode'] ? 1250 : 800;
     let options = {
-        width: win_width,
-        height: 600,
-        show: false
+        width: win_size.width,
+        height: win_size.height,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true,   // needed for IPC
+            contextIsolation: false  // needed for IPC
+        }
     };
-    let main_window = new BrowserWindow(options);
+    main_window = new BrowserWindow(options);
+    
+    main_window.on('moved', (event) => {
+        main_window.setSize(win_size.width, win_size.height);
+    });
+    
     main_window.once('ready-to-show', () => {
         main_window.show();
         if (cmd_options['debug-mode']) {
             main_window.webContents.openDevTools();
         }
     });
-    main_window.loadFile(path.join(__dirname, 'command-center.html'), {query: {ws: 'localhost:8000', secure: false, room: 'test123'}});
+
+    let query = {};
+    if (config !== null) {
+        query.query = config;
+    }
+    main_window.loadFile(path.join(__dirname, 'command-center.html'), query);
 }
 
 
@@ -77,6 +100,19 @@ app.on('window-all-closed', () => {
 });
 
 
+// Listen for notification from app window when toggling between config panel
+// and main status-tracker view: resize window accordingly
+ipcMain.on('change-mode', (event, arg) => {
+    if (arg.mode === 'command-center') {
+        fs.writeFile(config_file_path, JSON.stringify(arg.options, null, 4), 'utf8', (err) => {
+            if (err) {
+                console.log('Error: could not write config file');
+            }
+        });
+    }
+});
+
+
 // Print help (show command line options)
 function printHelp() {
     const sections = [
@@ -92,12 +128,6 @@ function printHelp() {
                     description: 'Print this usage guide.',
                     alias: 'h',
                     type: Boolean
-                },
-                {
-                    name: 'config-file',
-                    description: 'The configuration file for your group.',
-                    alias: 'f',
-                    typeLabel: '{underline file}'
                 },
                 {
                     name: 'debug-mode',

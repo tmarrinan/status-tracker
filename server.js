@@ -18,6 +18,18 @@ function closeWebSocketClient(wsio) {
     
     console.log('Client disconnected: ' + wsio.id);
     
+    // Object containing all clients in room
+    let wsio_clients = rooms[wsio.custom_data.room];
+    
+    // If client is normal app, inform command-center clients it has disconnected
+    if (wsio.custom_data.client_type === 'normal') {
+        for (let key in wsio_clients) {
+            if (wsio_clients.hasOwnProperty(key) && wsio_clients[key].custom_data.client_type === 'command-center') {
+                wsio_clients[key].emit('removeClient', {id: wsio.id});
+            }
+        }
+    }
+    
     // Delete client from room
     delete rooms[wsio.custom_data.room][wsio.id];
     
@@ -28,11 +40,11 @@ function closeWebSocketClient(wsio) {
 }
 
 function wsJoinRoom(wsio, data) {
-    if (!data.hasOwnProperty('room') || !data.hasOwnProperty('client_type')) {
+    if (!data.hasOwnProperty('room') || !data.hasOwnProperty('client_type') || !data.hasOwnProperty('user') || !data.hasOwnProperty('computer_id')) {
         return;
     }
     
-    console.log('Client joined room "' + data.room + '": ' + wsio.id);
+    console.log('Client joined room "' + data.room + '": ' + wsio.id + '(' + data.user + ')');
     
     // Create room if it doesn't already exist
     if (!rooms.hasOwnProperty(data.room)) {
@@ -43,6 +55,8 @@ function wsJoinRoom(wsio, data) {
     wsio.custom_data = {
         room: data.room,
         client_type: data.client_type,
+        user: data.user,
+        computer_id: data.computer_id,
         client_status: 'done'
     };
     
@@ -57,7 +71,7 @@ function wsJoinRoom(wsio, data) {
         let initial_status = {};
         for (let key in wsio_clients) {
             if (wsio_clients.hasOwnProperty(key) && wsio_clients[key].custom_data.client_type === 'normal') {
-                initial_status[wsio_clients[key].id] = wsio_clients[key].custom_data.client_status;
+                initial_status[wsio_clients[key].id] = wsio_clients[key].custom_data;
             }
         }
         wsio.emit('initialStatus', initial_status);
@@ -66,7 +80,7 @@ function wsJoinRoom(wsio, data) {
     else {
         for (let key in wsio_clients) {
             if (wsio_clients.hasOwnProperty(key) && wsio_clients[key].custom_data.client_type === 'command-center') {
-                wsio_clients[key].emit('newClient', {id: wsio.id, status: wsio.custom_data.client_status});
+                wsio_clients[key].emit('newClient', {id: wsio.id, data: wsio.custom_data});
             }
         }
     }

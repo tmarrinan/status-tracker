@@ -12,7 +12,6 @@ const commandLineUsage = require('command-line-usage');
 // Command line options
 const cmd_option_defs = [
     {name: 'help', alias: 'h', type: Boolean},
-    {name: 'config-file', alias: 'f', type: String},
     {name: 'debug-mode', alias: 'd', type: Boolean}
 ];
 let cmd_options = {};
@@ -23,7 +22,6 @@ catch (err) {
     console.log('Warning: unknown option entered');
 }
 if (!cmd_options.hasOwnProperty('help')) cmd_options['help'] = false;
-if (!cmd_options.hasOwnProperty('config-file')) cmd_options['config-file'] = path.join('config', 'sample-cfg.json');
 if (!cmd_options.hasOwnProperty('debug-mode')) cmd_options['debug-mode'] = false;
 
 if (cmd_options['help'] === true) {
@@ -147,12 +145,6 @@ function printHelp() {
                     description: 'Print this usage guide.',
                     alias: 'h',
                     type: Boolean
-                },
-                {
-                    name: 'config-file',
-                    description: 'The configuration file for your group.',
-                    alias: 'f',
-                    typeLabel: '{underline file}'
                 },
                 {
                     name: 'debug-mode',

@@ -130,7 +130,7 @@ function wsOpen() {
     
     component.connection_status = 'connected';
 
-    wsio.emit('joinRoom', {room: component.room, client_type: 'normal'});
+    wsio.emit('joinRoom', {room: component.room, client_type: 'normal', user: component.user, computer_id: component.computer_id});
 }
 
 function wsError(evt) {

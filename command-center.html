@@ -6,18 +6,41 @@
 	<title>Status Tracker - Command Center</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/vue@3.2.24/dist/vue.global.prod.js"></script>
-    <script type="application/javascript" src="js/websocketio.js"></script>
+    <script type="application/javascript" src="js/websocketio.min.js"></script>
     <script type="application/javascript" src="js/status-watch.js"></script>
 </head>
 <body onload="init()">
     <div id="app">
-        <div id="status-icon-container">
-            <img v-if="mode === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
-            <img v-else id="status_done" class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" @click="changeStatus" />
-            <img v-if="mode === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />
-            <img v-else id="status_busy" class="icon" src="images/icon_busy_gray.png" alt="busy (unselected)" width="96" height="96" @click="changeStatus" />
-            <img v-if="mode === 'stuck'" class="icon selected-icon" src="images/icon_stuck.png" alt="stuck" width="96" height="96" />
-            <img v-else id="status_stuck" class="icon" src="images/icon_stuck_gray.png" alt="stuck (unselected)" width="96" height="96" @click="changeStatus" />
+        <div id="config-container" v-if="mode === 'config'">
+            <div style="padding: 1rem;">
+                <label class="config-label">Name: </label><input id="user-name" class="config-input" type="text" v-model="user" /><br/>
+                <hr/>
+                <label class="config-label">Server: </label><input id="server" class="config-input" type="text" v-model="ws_host" /><br/>
+                <label class="config-label">Secure: </label><input id="is-secure" type="checkbox" v-model="is_secure" /><br/>
+                <hr/>
+                <label class="config-label">Room: </label><input id="room-id" class="config-input" type="text" v-model="room" /><br/>
+                <label class="config-label">Computer ID: </label><input id="computer-id" class="config-input" type="text" v-model="computer_id" /><br/>
+                <hr/>
+                <div id="config-go">
+                    <button type="button" @click="updateConfig">Go</button>
+                </div>
+                <div id="error-container" v-if="error_msg !== ''" v-html="error_msg"></div>
+            </div>
+        </div>
+        <div v-else>
+            <img id="settings-button" src="images/icon_settings.png" alt="settings" width="28" height="24" @click="openConfigPanel" />
+            <div id="status-icon-container">
+                <img v-if="status === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
+                <img v-else id="status_done" class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" @click="changeStatus" />
+                <img v-if="status === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />
+                <img v-else id="status_busy" class="icon" src="images/icon_busy_gray.png" alt="busy (unselected)" width="96" height="96" @click="changeStatus" />
+                <img v-if="status === 'stuck'" class="icon selected-icon" src="images/icon_stuck.png" alt="stuck" width="96" height="96" />
+                <img v-else id="status_stuck" class="icon" src="images/icon_stuck_gray.png" alt="stuck (unselected)" width="96" height="96" @click="changeStatus" />
+            </div>
+            <div id="connection-container">
+                <div :class="'connection-indicator connstat-' + connection_status"></div>
+                <span id="connstat-text">{{ connection_status }}</span>
+            </div>
         </div>
     </div>
 </body>
