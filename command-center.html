@@ -37,13 +37,24 @@
         </div>
         <div v-else>
             <img id="settings-button" src="images/icon_settings.png" alt="settings" width="28" height="24" @click="openConfigPanel" />
-            <div id="status-icon-container">
-                <img v-if="status === 'done'" class="icon selected-icon" src="images/icon_done.png" alt="done" width="96" height="96" />
-                <img v-else id="status_done" class="icon" src="images/icon_done_gray.png" alt="done (unselected)" width="96" height="96" @click="changeStatus" />
-                <img v-if="status === 'busy'" class="icon selected-icon" src="images/icon_busy.png" alt="busy" width="96" height="96" />
-                <img v-else id="status_busy" class="icon" src="images/icon_busy_gray.png" alt="busy (unselected)" width="96" height="96" @click="changeStatus" />
-                <img v-if="status === 'stuck'" class="icon selected-icon" src="images/icon_stuck.png" alt="stuck" width="96" height="96" />
-                <img v-else id="status_stuck" class="icon" src="images/icon_stuck_gray.png" alt="stuck (unselected)" width="96" height="96" @click="changeStatus" />
+            <div id="command-center-container">
+                <table style="border-collapse:separate; border-spacing: 0.5em 0.75em;">
+                    <tr v-for="(row, row_index) in seats">
+                        <td v-for="(seat, col_index) in row" :style="'width: ' + 100/seats[row_index].length + '%;'">
+                            <div v-if="seats[row_index][col_index] !== ''">
+                                <div style="position: relative; text-align: center;">
+                                    <!-- TODO: Update icon based on status -->
+                                    <img class="computer-seat-icon" src="images/icon_computer.png" alt="computer" />
+                                    <span class="computer-seat-id">{{ seats[row_index][col_index] }}</span>
+                                </div>
+                                <div class="computer-seat-name-container">
+                                    <!-- TODO: Get user name from Vue model (received via WebSocket message) -->
+                                    <p class="computer-seat-name">User Name</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div id="connection-container">
                 <div :class="'connection-indicator connstat-' + connection_status"></div>

@@ -10,6 +10,7 @@ function init() {
     let ws_host = params.get('ws');
     let is_secure = params.get('secure');
     let room = params.get('room');
+    let seats = params.get('seats');
     
     // Create Vue.js model
     const app = {
@@ -88,14 +89,14 @@ function init() {
     component = Vue.createApp(app).mount('#app');
     
     // Init app in config panel on first launch
-    if (ws_host === null || is_secure === null || room === null) {
+    if (ws_host === null || is_secure === null || room === null || seats === null) {
         initConfigPanel();
     }
     // Init app on status tracker panel if already configured
     else {
         component.ws_host = ws_host;
         component.is_secure = (is_secure === 'true');
-        
+        component.seats = JSON.parse(decodeURIComponent(seats));
         initCommandCenter(component.ws_url, room);
     }
 }

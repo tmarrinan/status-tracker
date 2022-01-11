@@ -66,10 +66,15 @@ hr {
     background-color: #5F5F5F;
 }
 
+#command-center-container {
+    width: 100%;
+}
+
 #settings-button {
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 5px;
+    z-index: 1;
     cursor: pointer;
 }
 
@@ -127,6 +132,32 @@ hr {
 .selected-icon {
     border-color: rgba(255, 255, 255, 1.0);
     border-radius: 50%;
+}
+
+.computer-seat-icon {
+    width: 100%;
+    max-width: 4rem;
+    height: auto;
+}
+
+.computer-seat-id {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+    color: #4A4A4A;
+}
+
+.computer-seat-name-container {
+    width: 100%;
+    max-width: 6rem;
+    text-align: center;
+}
+
+.computer-seat-name {
+    font-size: 0.85rem;
+    color: #4A4A4A;
 }
 
 .connection-indicator {

@@ -72,6 +72,9 @@ function createWindow() {
     let query = {};
     if (config !== null) {
         query.query = config;
+        if (Array.isArray(query.query.seats)) {
+            query.query.seats = encodeURIComponent(JSON.stringify(query.query.seats));
+        }
     }
     main_window.loadFile(path.join(__dirname, 'command-center.html'), query);
 }
