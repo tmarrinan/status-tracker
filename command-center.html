@@ -13,14 +13,22 @@
     <div id="app">
         <div id="config-container" v-if="mode === 'config'">
             <div style="padding: 1rem;">
-                <label class="config-label">Name: </label><input id="user-name" class="config-input" type="text" v-model="user" /><br/>
-                <hr/>
                 <label class="config-label">Server: </label><input id="server" class="config-input" type="text" v-model="ws_host" /><br/>
                 <label class="config-label">Secure: </label><input id="is-secure" type="checkbox" v-model="is_secure" /><br/>
                 <hr/>
                 <label class="config-label">Room: </label><input id="room-id" class="config-input" type="text" v-model="room" /><br/>
-                <label class="config-label">Computer ID: </label><input id="computer-id" class="config-input" type="text" v-model="computer_id" /><br/>
                 <hr/>
+                <label class="config-label">Seats:</label><br/>
+                <label class="seat-size-label">Rows:</label><input id="seat-rows" class="seat-size-input" type="number" min="0" max="15" v-model="num_rows">
+                <label class="seat-size-label">Columns:</label><input id="seat-columns" class="seat-size-input" type="number" min="0" max="20" v-model="num_cols">
+                <button class="seat-size-button" type="button" @click="updateSeatSize">Update</button><br/>
+                <table id="seat-table">
+                    <tr v-for="(row, row_index) in seats">
+                        <td v-for="(seat, col_index) in row" :style="'width: ' + 100/seats[row_index].length + '%;'">
+                            <input type="text" v-model="seats[row_index][col_index]" placeholder="ID" style="font-size: 0.85rem; width: 85%;">
+                        </td>
+                    </tr>
+                </table>
                 <div id="config-go">
                     <button type="button" @click="updateConfig">Go</button>
                 </div>

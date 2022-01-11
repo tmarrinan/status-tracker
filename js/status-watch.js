@@ -9,21 +9,19 @@ function init() {
     let params = new URLSearchParams(query_str);
     let ws_host = params.get('ws');
     let is_secure = params.get('secure');
-    let user = params.get('user');
     let room = params.get('room');
-    let computer_id = params.get('computer_id');
     
     // Create Vue.js model
     const app = {
         data() {
             return {
-                user: '',
                 ws_host: '',
                 is_secure: true,
                 room: '',
-                computer_id: '',
                 mode: 'config',
-                status: 'done',
+                num_rows: 0,
+                num_cols: 0,
+                seats: [],
                 error_msg: '',
                 connection_status: 'disconnected'
             }
@@ -34,14 +32,31 @@ function init() {
             }
         },
         methods: {
+            updateSeatSize(event) {
+                let i;
+                let resize_len = Math.min(this.seats.length, this.num_rows);
+                for (i = 0; i < resize_len; i++) {
+                    resizeSeatArray(this.seats[i], this.num_cols, i * this.num_cols + this.seats[i].length + 1);
+                }
+                let extra_rows = this.num_rows - this.seats.length;
+                if (extra_rows >= 0) {
+                    for (i = 0; i < extra_rows; i++) {
+                        let next_row = [];
+                        resizeSeatArray(next_row, this.num_cols, this.seats.length * this.num_cols + 1);
+                        this.seats.push(next_row);
+                    }
+                }
+                else {
+                    while (extra_rows < 0) {
+                        this.seats.pop();
+                        extra_rows++;
+                    }
+                }
+            },
             updateConfig(event) {
                 let valid_inputs = true;
                 this.error_msg = '';
                 let valid_hostname_pattern = /^(([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])(\:([0-9]+))?$/;
-                if (this.user === '') {
-                    valid_inputs = false;
-                    this.error_msg += '<p class="err">User name is missing</p>'
-                }
                 if (!valid_hostname_pattern.test(this.ws_host)) {
                     valid_inputs = false;
                     this.error_msg += '<p class="err">Invalid server URL</p>'
@@ -50,38 +65,22 @@ function init() {
                     valid_inputs = false;
                     this.error_msg += '<p class="err">Room name is missing</p>'
                 }
-                if (this.computer_id === '') {
-                    valid_inputs = false;
-                    this.error_msg += '<p class="err">Computer ID is missing</p>'
-                }
                 if (valid_inputs) {
-                    initStatusTracker(this.user, this.ws_url, this.room, this.computer_id);
+                    initCommandCenter(this.ws_url, this.room);
                     let options = {
-                        user: this.user,
                         ws: this.ws_host,
                         secure: this.is_secure,
                         room: this.room,
-                        computer_id: this.computer_id
+                        seats: JSON.parse(JSON.stringify(this.seats))
                     };
-                    ipcRenderer.send('change-mode', {mode: component.mode, options: options});
+                    console.log(options);
+                    ipcRenderer.send('change-mode', {mode: this.mode, options: options});
                 }
             },
             openConfigPanel(event) {
                 wsio.close();
-                component.mode = 'config';
+                this.mode = 'config';
                 initConfigPanel();
-            },
-            changeStatus(event) {
-                if (event.target.id === 'status_done') {
-                    this.status = 'done';
-                }
-                else if (event.target.id === 'status_busy') {
-                    this.status = 'busy';
-                }
-                else if (event.target.id === 'status_stuck') {
-                    this.status = 'stuck';
-                }
-                wsio.emit('statusChange', {status: this.status});
             }
         }
     };
@@ -89,7 +88,7 @@ function init() {
     component = Vue.createApp(app).mount('#app');
     
     // Init app in config panel on first launch
-    if (ws_host === null || is_secure === null || room === null || computer_id === null) {
+    if (ws_host === null || is_secure === null || room === null) {
         initConfigPanel();
     }
     // Init app on status tracker panel if already configured
@@ -97,7 +96,7 @@ function init() {
         component.ws_host = ws_host;
         component.is_secure = (is_secure === 'true');
         
-        initStatusTracker(user, component.ws_url, room, computer_id);
+        initCommandCenter(component.ws_url, room);
     }
 }
 
@@ -106,23 +105,16 @@ function initConfigPanel() {
     ipcRenderer.send('change-mode', {mode: component.mode});
 }
 
-function initStatusTracker(user, ws_url, room, computer_id) {
-    console.log('init status tracker: ' + ws_url + '(' + user + ')');
+function initCommandCenter(ws_url, room) {
+    console.log('init command center: ' + ws_url);
     
-    component.user = user;
     component.room = room;
-    component.computer_id = computer_id;
     component.mode = 'command-center';
     component.connection_status = 'connecting';
     
     wsio = new WebSocketIO(ws_url);
     wsio.open(wsOpen, wsError);
     wsio.on('close', wsClose);
-}
-
-function connect() {
-    initStatusTracker(component.user, component.ws_url);
-    ipcRenderer.send('change-mode', {mode: component.mode});
 }
 
 function wsOpen() {
@@ -164,4 +156,18 @@ function wsRemoveClient(data) {
 
 function wsClientStatusChange(data) {
     console.log(data);
+}
+
+function resizeSeatArray(array, size, start_value) {
+    let delta = array.length - size;
+
+    while (delta > 0) {
+        array.pop();
+        delta--;
+    }
+    while (delta < 0) {
+        array.push(start_value.toString());
+        start_value++;
+        delta++;
+    }
 }

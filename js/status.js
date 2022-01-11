@@ -63,12 +63,12 @@ function init() {
                         room: this.room,
                         computer_id: this.computer_id
                     };
-                    ipcRenderer.send('change-mode', {mode: component.mode, options: options});
+                    ipcRenderer.send('change-mode', {mode: this.mode, options: options});
                 }
             },
             openConfigPanel(event) {
                 wsio.close();
-                component.mode = 'config';
+                this.mode = 'config';
                 initConfigPanel();
             },
             changeStatus(event) {
@@ -118,11 +118,6 @@ function initStatusTracker(user, ws_url, room, computer_id) {
     wsio = new WebSocketIO(ws_url);
     wsio.open(wsOpen, wsError);
     wsio.on('close', wsClose);
-}
-
-function connect() {
-    initStatusTracker(component.user, component.ws_url);
-    ipcRenderer.send('change-mode', {mode: component.mode});
 }
 
 function wsOpen() {
