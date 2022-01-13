@@ -156,6 +156,8 @@ hr {
 }
 
 .computer-seat-name {
+    display: block;
+    height: 1.75rem;
     font-size: 0.85rem;
     color: #4A4A4A;
 }

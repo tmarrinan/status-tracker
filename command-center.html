@@ -38,18 +38,16 @@
         <div v-else>
             <img id="settings-button" src="images/icon_settings.png" alt="settings" width="28" height="24" @click="openConfigPanel" />
             <div id="command-center-container">
-                <table style="border-collapse:separate; border-spacing: 0.5em 0.75em;">
+                <table style="width: 100%; border-collapse:separate; border-spacing: 0.5em 0.75em;">
                     <tr v-for="(row, row_index) in seats">
                         <td v-for="(seat, col_index) in row" :style="'width: ' + 100/seats[row_index].length + '%;'">
                             <div v-if="seats[row_index][col_index] !== ''">
                                 <div style="position: relative; text-align: center;">
-                                    <!-- TODO: Update icon based on status -->
-                                    <img class="computer-seat-icon" src="images/icon_computer.png" alt="computer" />
+                                    <img class="computer-seat-icon" :src="getComputerStatus(seats[row_index][col_index])" alt="computer" />
                                     <span class="computer-seat-id">{{ seats[row_index][col_index] }}</span>
                                 </div>
                                 <div class="computer-seat-name-container">
-                                    <!-- TODO: Get user name from Vue model (received via WebSocket message) -->
-                                    <p class="computer-seat-name">User Name</p>
+                                    <p class="computer-seat-name">{{ clients.hasOwnProperty(seats[row_index][col_index]) ? clients[seats[row_index][col_index]].name : '---' }}</p>
                                 </div>
                             </div>
                         </td>
