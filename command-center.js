@@ -58,6 +58,11 @@ function createWindow() {
     };
     main_window = new BrowserWindow(options);
     
+    main_window.on('will-move', (event) => {
+        let size = main_window.getSize();
+        win_size.width = size[0];
+        win_size.height = size[1];
+    });
     main_window.on('moved', (event) => {
         main_window.setSize(win_size.width, win_size.height);
     });

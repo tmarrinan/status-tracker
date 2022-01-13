@@ -108,6 +108,10 @@ function init() {
         component.ws_host = ws_host;
         component.is_secure = (is_secure === 'true');
         component.seats = JSON.parse(decodeURIComponent(seats));
+        component.num_rows = component.seats.length;
+        if (component.num_rows > 0) {
+            component.num_cols = component.seats[0].length;
+        }
         initCommandCenter(component.ws_url, room);
     }
 }
