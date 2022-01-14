@@ -124,6 +124,8 @@ function wsOpen() {
     console.log('Now connected to WebSocketIO server!');
     
     component.connection_status = 'connected';
+    
+    wsio.on('clientStatusReset', wsClientStatusReset);
 
     wsio.emit('joinRoom', {room: component.room, client_type: 'normal', user: component.user, computer_id: component.computer_id});
 }
@@ -138,5 +140,10 @@ function wsClose() {
     console.log('WebSocket connection closed');
     
     component.connection_status = 'disconnected';
+}
+
+function wsClientStatusReset(data) {
+    console.log('client status reset');
+    component.status = 'busy';
 }
 

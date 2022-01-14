@@ -44,7 +44,7 @@ if (fs.existsSync(config_file_path)) {
 
 // Create the application window
 let main_window = null;
-let win_size = {width: cmd_options['debug-mode'] ? 1280 : 800, height: 650};
+let win_size = {width: cmd_options['debug-mode'] ? 1280 : 900, height: 705};
 
 function createWindow() {
     let options = {
@@ -68,6 +68,7 @@ function createWindow() {
     });
     
     main_window.once('ready-to-show', () => {
+        main_window.setMenu(null);
         main_window.show();
         if (cmd_options['debug-mode']) {
             main_window.webContents.openDevTools();

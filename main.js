@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 
 // Third-party Node.js packages
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, BrowserWindow, screen, ipcMain} = require('electron');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
@@ -44,7 +44,7 @@ if (fs.existsSync(config_file_path)) {
 
 // Create the application window
 let main_window = null;
-let win_size = {width: cmd_options['debug-mode'] ? 770 : 220, height: 450};
+let win_size = {width: cmd_options['debug-mode'] ? 770 : 220, height: 430};
 
 function createWindow() {
     let options = {
@@ -66,8 +66,11 @@ function createWindow() {
     });
     
     main_window.once('ready-to-show', () => {
-        main_window.show();
+        let display = screen.getPrimaryDisplay();
+        main_window.setMenu(null);
         main_window.setResizable(false);
+        main_window.setPosition(display.bounds.width - win_size.width, 0);
+        main_window.show();
         if (cmd_options['debug-mode']) {
             main_window.webContents.openDevTools();
         }
@@ -109,14 +112,14 @@ app.on('window-all-closed', () => {
 ipcMain.on('change-mode', (event, arg) => {
     if (arg.mode === 'config') {
         win_size.width = cmd_options['debug-mode'] ? 1000 : 450;
-        win_size.height = 500;
+        win_size.height = 485;
         main_window.setResizable(true);
         main_window.setSize(win_size.width, win_size.height);
         main_window.setResizable(false);
     }
     else if (arg.mode === 'status-tracker') {
         win_size.width = cmd_options['debug-mode'] ? 770 : 220;
-        win_size.height = 450;
+        win_size.height = 430;
         main_window.setResizable(true);
         main_window.setSize(win_size.width, win_size.height);
         main_window.setResizable(false);

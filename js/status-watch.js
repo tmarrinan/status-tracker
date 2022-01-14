@@ -85,9 +85,8 @@ function init() {
                 }
                 return status_image;
             },
-            test() {
-                this.clients['11'] = {status: 'busy', name: 'Anon'};
-                this.$forceUpdate();
+            resetClientStatus() {
+                wsio.emit('resetClientStatus', {});
             },
             openConfigPanel(event) {
                 wsio.close();
@@ -142,6 +141,7 @@ function wsOpen() {
     wsio.on('newClient', wsNewClient);
     wsio.on('removeClient', wsRemoveClient);
     wsio.on('clientStatusChange', wsClientStatusChange);
+    wsio.on('clientStatusReset', wsClientStatusReset);
 
     wsio.emit('joinRoom', {room: component.room, client_type: 'command-center', user: 'Command Center', computer_id: 'CC'});
 }
@@ -211,10 +211,21 @@ function wsClientStatusChange(data) {
             }
         }
         if (client_key !== null) {
-            component.clients[key].status = data.status;
+            component.clients[client_key].status = data.status;
             component.$forceUpdate();
         }
     }
+}
+
+function wsClientStatusReset(data) {
+    console.log('client status reset');
+    let key;
+    for (key in component.clients) {
+        if (component.clients.hasOwnProperty(key)) {
+            component.clients[key].status = 'busy';
+        }
+    }
+    component.$forceUpdate();
 }
 
 function resizeSeatArray(array, size, start_value) {

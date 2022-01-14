@@ -9,6 +9,7 @@ wsio_server.onconnection((wsio) => {
     wsio.onclose(closeWebSocketClient);
     wsio.on('joinRoom', wsJoinRoom);
     wsio.on('statusChange', wsStatusChange);
+    wsio.on('resetClientStatus', wsResetClientStatus);
 });
 
 function closeWebSocketClient(wsio) {
@@ -101,6 +102,25 @@ function wsStatusChange(wsio, data) {
     for (let key in wsio_clients) {
         if (wsio_clients.hasOwnProperty(key) && wsio_clients[key].custom_data.client_type === 'command-center') {
             wsio_clients[key].emit('clientStatusChange', {id: wsio.id, status: wsio.custom_data.client_status});
+        }
+    }
+}
+
+function wsResetClientStatus(wsio, data) {
+    if (!wsio.hasOwnProperty('custom_data')) {
+        return;
+    }
+    
+    console.log('reset client status: room ' + wsio.custom_data.room);
+    
+    // Forward status reset notification to all clients
+    let wsio_clients = rooms[wsio.custom_data.room];
+    for (let key in wsio_clients) {
+        if (wsio_clients.hasOwnProperty(key)) {
+            if (wsio_clients[key].custom_data.client_type === 'normal') {
+                wsio_clients[key].custom_data.client_status = 'busy';
+            }
+            wsio_clients[key].emit('clientStatusReset', {});
         }
     }
 }

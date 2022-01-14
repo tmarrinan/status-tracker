@@ -57,6 +57,7 @@
             <div id="connection-container">
                 <div :class="'connection-indicator connstat-' + connection_status"></div>
                 <span id="connstat-text">{{ connection_status }}</span>
+                <button class="reset-button" type="button" @click="resetClientStatus">Reset Status</button>
             </div>
         </div>
     </div>
